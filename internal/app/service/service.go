@@ -118,6 +118,14 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 			continue
 		}
 
+		if _, err := s.GetGroupByName(ctx, group.GetGroupName()); err == nil {
+			result = append(result, &api.AddGroups_ResultItem{
+				Result: false,
+				Error:  "группа с таким названием уже существует",
+			})
+			continue
+		}
+
 		semesterStart, err := time.Parse(ds.GroupSemesterStartFormat, group.GetSemesterStartAt())
 		if err != nil {
 			result = append(result, &api.AddGroups_ResultItem{
@@ -132,6 +140,14 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 			result = append(result, &api.AddGroups_ResultItem{
 				Result: false,
 				Error:  fmt.Sprintf("неверный формат времени окончания семестра, требуется: %s и т.п.", ds.GroupSemesterEndFormat),
+			})
+			continue
+		}
+
+		if semesterStart.After(semesterEnd) {
+			result = append(result, &api.AddGroups_ResultItem{
+				Result: false,
+				Error:  "время начала семестра не может быть позже времени окончания",
 			})
 			continue
 		}

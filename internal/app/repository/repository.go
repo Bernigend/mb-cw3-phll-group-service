@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	customError "github.com/Bernigend/mb-cw3-phll-group-service/internal/app/custom-errors"
 
@@ -18,7 +19,9 @@ type Repository struct {
 
 // Создаёт новое подключение к базе данных
 func NewRepository(dsn string) (*Repository, error) {
-	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 
 	if err != nil {
 		return nil, err
@@ -51,27 +54,27 @@ func (r Repository) AutoMigrate() error {
 }
 
 func (r Repository) GetGroup(ctx context.Context, filter *ds.Group) (*ds.Group, error) {
-	var group *ds.Group
+	var group ds.Group
 
 	err := r.db.Where(filter).First(&group).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, customError.Internal.NewWrap(ctx, "группа не найдена", err)
+			return nil, customError.NotFound.NewWrap(ctx, "группа не найдена", err)
 		} else {
 			return nil, customError.Internal.NewWrap(ctx, "произошла непредвиденная ошибка", err)
 		}
 	}
 
-	return group, nil
+	return &group, nil
 }
 
 func (r Repository) GetGroupList(ctx context.Context, filter *ds.Group) (ds.GroupList, error) {
 	var groupsList []*ds.Group
 
-	err := r.db.Where(filter).First(&groupsList).Error
+	err := r.db.Where(filter).Find(&groupsList).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, customError.Internal.NewWrap(ctx, "по указанным фильтрам групп не найдено", err)
+			return nil, customError.NotFound.NewWrap(ctx, "по указанным фильтрам групп не найдено", err)
 		} else {
 			return nil, customError.Internal.NewWrap(ctx, "произошла непредвиденная ошибка", err)
 		}
