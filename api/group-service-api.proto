@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package group_service_api;
+option go_package = ".;group_service_api";
+
+service GroupService
+{
+  // возвращает указанную группу
+  rpc GetGroup(GetGroup_Request) returns (GetGroup_Response);
+  // добавляет новую группу
+  rpc AddGroups(AddGroups_Request) returns (AddGroups_Response);
+  // возвращает список групп
+  rpc GetGroupList(GetGroupList_Request) returns (GetGroupList_Response);
+}
+
+/******************************************
+ * GetGroup
+ ******************************************/
+
+message GetGroup_Request
+{
+  string group_uuid = 1;
+  string group_name = 2;
+}
+
+message GetGroup_Response
+{
+  string group_uuid = 1;
+  string group_name = 2;
+  string semester_start_at = 3;
+  string semester_end_at = 4;
+  bool is_first_week_numerator = 5;
+  string department = 6;
+  string faculty = 7;
+}
+
+/******************************************
+ * AddGroups
+ ******************************************/
+
+message AddGroups_Request
+{
+  repeated AddGroups_GroupItem groups_list = 1;
+}
+
+message AddGroups_Response
+{
+  repeated AddGroups_ResultItem results_list = 2;
+}
+
+message AddGroups_GroupItem
+{
+  string group_name = 2;
+  string semester_start_at = 3;
+  string semester_end_at = 4;
+  bool is_first_week_numerator = 5;
+  string department = 6;
+  string faculty = 7;
+}
+
+message AddGroups_ResultItem
+{
+  bool result = 1;
+  string error = 2;
+}
+
+/******************************************
+ * GetGroupList
+ ******************************************/
+
+message GetGroupList_Request
+{
+  string department = 1;
+  string faculty = 2;
+}
+
+message GetGroupList_Response
+{
+  repeated GetGroupList_GroupItem groups_list = 1;
+}
+
+message GetGroupList_GroupItem
+{
+  string group_uuid = 1;
+  string group_name = 2;
+  string semester_start_at = 3;
+  string semester_end_at = 4;
+  bool is_first_week_numerator = 5;
+  string department = 6;
+  string faculty = 7;
+}
