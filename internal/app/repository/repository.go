@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -83,6 +84,11 @@ func (r Repository) GetGroupList(ctx context.Context, filter *ds.Group) (ds.Grou
 	return groupsList, nil
 }
 
-func (r Repository) AddGroup(_ context.Context, group *ds.Group) error {
-	return r.db.Create(&group).Error
+func (r Repository) AddGroup(ctx context.Context, group *ds.Group) (uuid.UUID, error) {
+	err := r.db.Create(&group).Error
+	if err != nil {
+		return uuid.Nil, customError.Internal.NewWrap(ctx, "произошла непредвиденная ошибка", err)
+	}
+
+	return group.UUID, nil
 }

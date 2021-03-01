@@ -16,7 +16,7 @@ type IRepository interface {
 	GetGroup(ctx context.Context, filter *ds.Group) (*ds.Group, error)
 	GetGroupList(ctx context.Context, filter *ds.Group) (ds.GroupList, error)
 
-	AddGroup(ctx context.Context, group *ds.Group) error
+	AddGroup(ctx context.Context, group *ds.Group) (uuid.UUID, error)
 }
 
 type Service struct {
@@ -118,10 +118,11 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 			continue
 		}
 
-		if _, err := s.GetGroupByName(ctx, group.GetGroupName()); err == nil {
+		if group, err := s.GetGroupByName(ctx, group.GetGroupName()); err == nil {
 			result = append(result, &api.AddGroups_ResultItem{
 				Result: false,
 				Error:  "группа с таким названием уже существует",
+				Uuid:   group.GroupUuid,
 			})
 			continue
 		}
@@ -168,7 +169,7 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 			continue
 		}
 
-		err = s.repository.AddGroup(ctx, &ds.Group{
+		newUuid, err := s.repository.AddGroup(ctx, &ds.Group{
 			Name:                 group.GetGroupName(),
 			SemesterStart:        semesterStart,
 			SemesterEnd:          semesterEnd,
@@ -186,6 +187,7 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 		result = append(result, &api.AddGroups_ResultItem{
 			Result: len(errorString) == 0,
 			Error:  errorString,
+			Uuid:   newUuid.String(),
 		})
 	}
 
