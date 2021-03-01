@@ -120,8 +120,7 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 
 		if group, err := s.GetGroupByName(ctx, group.GetGroupName()); err == nil {
 			result = append(result, &api.AddGroups_ResultItem{
-				Result:    false,
-				Error:     "группа с таким названием уже существует",
+				Result:    true,
 				Uuid:      group.GroupUuid,
 				GroupName: group.GroupName,
 			})
