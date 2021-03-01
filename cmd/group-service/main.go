@@ -20,7 +20,7 @@ const (
 
 const (
 	dbHost = "localhost"
-	dbPort = "5433"
+	dbPort = "5434"
 	dbUser = "user"
 	dbPass = "password"
 	dbName = "db"
