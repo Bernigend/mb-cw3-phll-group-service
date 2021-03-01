@@ -63,6 +63,7 @@ message AddGroups_ResultItem
   bool result = 1;
   string error = 2;
   string uuid = 3;
+  string group_name = 4;
 }
 
 /******************************************

@@ -120,9 +120,10 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 
 		if group, err := s.GetGroupByName(ctx, group.GetGroupName()); err == nil {
 			result = append(result, &api.AddGroups_ResultItem{
-				Result: false,
-				Error:  "группа с таким названием уже существует",
-				Uuid:   group.GroupUuid,
+				Result:    false,
+				Error:     "группа с таким названием уже существует",
+				Uuid:      group.GroupUuid,
+				GroupName: group.GroupName,
 			})
 			continue
 		}
@@ -153,10 +154,10 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 			continue
 		}
 
-		if len(group.GetDepartment()) > ds.GroupDepartmentMaxLength {
+		if len([]rune(group.GetDepartment())) > ds.GroupDepartmentMaxLength {
 			result = append(result, &api.AddGroups_ResultItem{
 				Result: false,
-				Error:  fmt.Sprintf("максимальная длина названия кафедры = %d", ds.GroupDepartmentMaxLength),
+				Error:  fmt.Sprintf("максимальная длина названия кафедры = %d, %d", ds.GroupDepartmentMaxLength, len([]rune(group.GetDepartment()))),
 			})
 			continue
 		}
@@ -185,9 +186,10 @@ func (s Service) AddGroups(ctx context.Context, groupsList []*api.AddGroups_Grou
 		}
 
 		result = append(result, &api.AddGroups_ResultItem{
-			Result: len(errorString) == 0,
-			Error:  errorString,
-			Uuid:   newUuid.String(),
+			Result:    len(errorString) == 0,
+			Error:     errorString,
+			Uuid:      newUuid.String(),
+			GroupName: group.GetGroupName(),
 		})
 	}
 
